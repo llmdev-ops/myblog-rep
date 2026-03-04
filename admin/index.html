@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin — loiclemolgat.fr</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Admin CSS -->
+  <link rel="stylesheet" href="/css/admin/admin-base.css">
+  <link rel="stylesheet" href="/css/admin/editor.css">
+  <link rel="stylesheet" href="/css/admin/dashboard.css">
+</head>
+<body>
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <a href="/" class="sidebar__brand" target="_blank">
+      <div class="sidebar__brand-name">Loïc Le<span>.</span>Molgat</div>
+      <div class="sidebar__brand-sub">Administration</div>
+    </a>
+
+    <div class="sidebar__section">
+      <div class="sidebar__section-label">Espace de travail</div>
+      <button class="sidebar__nav-item active" data-view="dashboard" onclick="showView('dashboard')">
+        <span class="nav-icon">◈</span> Tableau de bord
+      </button>
+      <button class="sidebar__nav-item" data-view="articles" onclick="showView('articles'); Articles.init()">
+        <span class="nav-icon">≡</span> Articles
+        <span class="nav-badge">22</span>
+      </button>
+      <button class="sidebar__nav-item" data-view="editor" onclick="showView('editor'); Editor.newArticle()">
+        <span class="nav-icon">+</span> Nouvel article
+      </button>
+    </div>
+
+    <div class="sidebar__section">
+      <div class="sidebar__section-label">Contenu</div>
+      <button class="sidebar__nav-item" data-view="pillars" onclick="showView('pillars')">
+        <span class="nav-icon">◇</span> Piliers
+      </button>
+      <button class="sidebar__nav-item" onclick="showToast('Bientôt disponible')">
+        <span class="nav-icon">⬇</span> Ressources
+      </button>
+      <button class="sidebar__nav-item" onclick="showToast('Bientôt disponible')">
+        <span class="nav-icon">@</span> Newsletter
+      </button>
+    </div>
+
+    <div class="sidebar__section">
+      <div class="sidebar__section-label">Système</div>
+      <button class="sidebar__nav-item" data-view="settings" onclick="showView('settings')">
+        <span class="nav-icon">⚙</span> Paramètres
+      </button>
+      <button class="sidebar__nav-item" onclick="window.open('/', '_blank')">
+        <span class="nav-icon">↗</span> Voir le site
+      </button>
+    </div>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="user-avatar">L</div>
+        <div>
+          <div class="user-name">Loïc Le Molgat</div>
+          <div class="user-role">Administrateur</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <div class="admin-main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <span class="topbar__path" id="topbar-path">Accueil</span>
+      <span class="topbar__sep">›</span>
+      <span class="topbar__title" id="topbar-title">Tableau de bord</span>
+      <div class="topbar__actions" id="topbar-actions">
+        <button class="abtn abtn--ghost abtn--sm" onclick="showView('editor'); Editor.newArticle()">+ Nouvel article</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="admin-content">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div id="view-dashboard" class="a-view active">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card__label">Articles publiés</div>
+            <div class="stat-card__value">18</div>
+            <div class="stat-card__sub stat-trend">↑ 3 ce mois</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Brouillons</div>
+            <div class="stat-card__value">4</div>
+            <div class="stat-card__sub">En cours de rédaction</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Lecture moyenne</div>
+            <div class="stat-card__value">7<span style="font-size:1rem">min</span></div>
+            <div class="stat-card__sub stat-trend">↑ vs 4min avant</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Prochaine publication</div>
+            <div class="stat-card__value" style="font-size:1.3rem;padding-top:0.3rem">Mer. 11 mars</div>
+            <div class="stat-card__sub">dans 7 jours</div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="panel">
+            <div class="panel__header">
+              <span class="panel__title">Articles récents</span>
+              <button class="abtn abtn--ghost abtn--sm" onclick="showView('articles'); Articles.init()">Voir tout</button>
+            </div>
+            <div id="recent-articles-list"></div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="panel">
+              <div class="panel__header"><span class="panel__title">Actions rapides</span></div>
+              <div class="quick-action" onclick="showView('editor'); Editor.newArticle()"><span class="qa-icon">✏</span><span>Écrire un article</span></div>
+              <div class="quick-action" onclick="showView('settings')"><span class="qa-icon">⚙</span><span>Paramètres</span></div>
+              <div class="quick-action" onclick="window.open('/', '_blank')"><span class="qa-icon">↗</span><span>Voir le site public</span></div>
+            </div>
+
+            <div class="panel">
+              <div class="panel__header"><span class="panel__title">Cadence éditoriale</span></div>
+              <div style="padding:1rem">
+                <div style="font-size:0.72rem;color:var(--a-text-dim);margin-bottom:0.5rem">Objectif : 1 article / semaine</div>
+                <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--a-text);margin-bottom:0.4rem"><span>Ce mois</span><span style="font-family:var(--a-mono)">3 / 4</span></div>
+                <div class="prog-bar"><div class="prog-fill" style="width:75%"></div></div>
+                <div style="font-size:0.66rem;color:var(--a-text-dim);margin-top:0.3rem">75% de l'objectif atteint</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ARTICLES ═══ -->
+      <div id="view-articles" class="a-view">
+        <div class="list-toolbar">
+          <input type="text" id="articles-search" class="search-input" placeholder="Rechercher un article…">
+          <select id="articles-filter-pillar" class="filter-select">
+            <option value="">Tous les piliers</option>
+            <option value="Performance">Performance & Valeur</option>
+            <option value="Leadership">Leadership & Engagement</option>
+            <option value="Organisation">Organisation & Delivery</option>
+            <option value="Robustesse">Robustesse & Transformation</option>
+          </select>
+          <select id="articles-filter-status" class="filter-select">
+            <option value="">Tous statuts</option>
+            <option value="published">Publiés</option>
+            <option value="draft">Brouillons</option>
+          </select>
+        </div>
+        <div class="articles-table">
+          <div class="table-head">
+            <span>Titre</span><span>Pilier</span><span>Statut</span><span>Date</span><span>Actions</span>
+          </div>
+          <div id="articles-tbody"></div>
+        </div>
+      </div>
+
+      <!-- ═══ EDITOR ═══ -->
+      <div id="view-editor" class="a-view">
+        <div class="editor-layout">
+          <div class="editor-main">
+            <div class="editor-toolbar">
+              <button class="tb-btn" onclick="Editor.format('bold')"><b>G</b></button>
+              <button class="tb-btn" onclick="Editor.format('italic')"><em>I</em></button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn" onclick="Editor.format('h2')">H2</button>
+              <button class="tb-btn" onclick="Editor.format('h3')">H3</button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn" onclick="Editor.format('quote')">«»</button>
+              <button class="tb-btn" onclick="Editor.format('ul')">— Liste</button>
+              <div class="tb-sep"></div>
+              <button class="tb-btn" onclick="Editor.format('link')">↗ Lien</button>
+              <span class="autosave"><div class="autosave__dot"></div><span id="autosave-label">Sauvegardé</span></span>
+            </div>
+
+            <input type="text" class="editor-title" id="editor-title" placeholder="Titre de l'article…">
+
+            <div class="editor-meta">
+              <span class="editor-meta__pillar" id="editor-pillar-display">Pilier non défini</span>
+              <span style="color:var(--a-border-hi)">·</span>
+              <span id="editor-status-display">Brouillon</span>
+            </div>
+
+            <div class="editor-scroll">
+              <div class="editor-body" id="editor-body" contenteditable="true"
+                data-placeholder="Commencez à écrire… Partez d'un problème réel, donnez une lecture différente, apportez un cadre de réflexion. Terminez par une ouverture.">
+              </div>
+            </div>
+
+            <div class="word-count">
+              <span id="word-count">0 mots</span>
+              <span id="read-time">~ 0 min de lecture</span>
+            </div>
+          </div>
+
+          <div class="editor-sidebar">
+            <div class="panel">
+              <div class="sp-header">Publication <span class="status-badge status-badge--draft" id="pub-status-badge">Brouillon</span></div>
+              <div class="sp-body">
+                <div class="form-group">
+                  <label class="form-label">Statut</label>
+                  <select class="form-control" id="pub-status">
+                    <option value="draft">Brouillon</option>
+                    <option value="published">Publié</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Date</label>
+                  <input type="date" class="form-control" id="pub-date">
+                </div>
+                <div style="display:flex;gap:0.5rem;margin-top:0.3rem">
+                  <button class="abtn abtn--ghost" style="flex:1" onclick="Editor.saveDraft()">Brouillon</button>
+                  <button class="abtn abtn--primary" style="flex:1" onclick="Editor.publish()">Publier</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="sp-header">Classification</div>
+              <div class="sp-body">
+                <div class="form-group">
+                  <label class="form-label">Pilier</label>
+                  <select class="form-control" id="article-pillar">
+                    <option value="">Choisir…</option>
+                    <option value="Performance & Valeur">Performance & Valeur</option>
+                    <option value="Leadership & Engagement">Leadership & Engagement</option>
+                    <option value="Organisation & Delivery">Organisation & Delivery</option>
+                    <option value="Robustesse & Transformation">Robustesse & Transformation</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Mots-clés</label>
+                  <div class="tag-input" id="tags-container" onclick="document.getElementById('tag-text').focus()">
+                    <span class="tag">transformation <span class="tag__remove" onclick="Editor.removeTag(this)">×</span></span>
+                    <input id="tag-text" type="text" class="tag-text-input" placeholder="Ajouter…" onkeydown="Editor.addTag(event)">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="sp-header">SEO & Méta</div>
+              <div class="sp-body">
+                <div class="form-group">
+                  <label class="form-label">Extrait</label>
+                  <textarea class="form-textarea" id="article-excerpt" placeholder="2–3 phrases qui donnent envie de lire…"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Slug URL</label>
+                  <input type="text" class="form-control" id="article-slug" placeholder="mon-article">
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="sp-header">Rappel éditorial</div>
+              <div class="sp-body">
+                <div class="editorial-reminder">
+                  <div class="editorial-reminder__step"><span class="editorial-reminder__num">①</span><span class="editorial-reminder__text">Partir d'un problème réel</span></div>
+                  <div class="editorial-reminder__step"><span class="editorial-reminder__num">②</span><span class="editorial-reminder__text">Donner une lecture différente</span></div>
+                  <div class="editorial-reminder__step"><span class="editorial-reminder__num">③</span><span class="editorial-reminder__text">Apporter un cadre de réflexion</span></div>
+                  <div class="editorial-reminder__step"><span class="editorial-reminder__num">④</span><span class="editorial-reminder__text">Terminer par une ouverture</span></div>
+                  <div class="editorial-reminder__avoid">Éviter : effets de mode · injonctions · déclarations vagues</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SETTINGS ═══ -->
+      <div id="view-settings" class="a-view">
+        <div class="settings-layout">
+          <div class="settings-nav">
+            <button class="settings-nav-item active" onclick="showSettingsPanel('general', this)">Général</button>
+            <button class="settings-nav-item" onclick="showSettingsPanel('editorial', this)">Éditorial</button>
+            <button class="settings-nav-item" onclick="showSettingsPanel('seo', this)">SEO</button>
+            <button class="settings-nav-item" onclick="showSettingsPanel('contact', this)">Contact</button>
+            <button class="settings-nav-item" onclick="showSettingsPanel('compte', this)">Compte</button>
+          </div>
+          <div id="settings-panels">
+            <div id="settings-general" class="settings-panel active">
+              <div class="settings-section">
+                <div class="settings-section-title">Informations du site</div>
+                <div class="settings-body">
+                  <div class="settings-row"><div class="settings-row__label"><strong>Nom du site</strong><span>Affiché dans l'onglet</span></div><input type="text" class="form-control" value="Loïc Le Molgat" style="width:200px"></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Tagline</strong><span>Phrase d'accroche</span></div><input type="text" class="form-control" value="Performance des organisations" style="width:200px"></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>URL du site</strong></div><input type="text" class="form-control" value="https://loiclemolgat.fr" style="width:220px"></div>
+                </div>
+              </div>
+              <div class="settings-section">
+                <div class="settings-section-title">Fonctionnalités</div>
+                <div class="settings-body">
+                  <div class="settings-row"><div class="settings-row__label"><strong>Newsletter</strong><span>Afficher l'inscription sur le site</span></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Commentaires</strong><span>Activer les réactions</span></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Contenu premium</strong><span>Téléchargements</span></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+                </div>
+              </div>
+              <button class="abtn abtn--primary" onclick="showToast('Paramètres sauvegardés')">Sauvegarder</button>
+            </div>
+            <div id="settings-editorial" class="settings-panel">
+              <div class="settings-section">
+                <div class="settings-section-title">Ligne éditoriale</div>
+                <div class="settings-body">
+                  <div class="settings-row"><div class="settings-row__label"><strong>Fréquence cible</strong></div><select class="form-control" style="width:160px"><option selected>1 article / semaine</option><option>2 articles / mois</option></select></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Longueur cible</strong></div><select class="form-control" style="width:160px"><option>800–1 200 mots</option><option selected>1 200–2 000 mots</option><option>2 000+ mots</option></select></div>
+                </div>
+              </div>
+              <button class="abtn abtn--primary" onclick="showToast('Paramètres éditoriaux sauvegardés')">Sauvegarder</button>
+            </div>
+            <div id="settings-seo" class="settings-panel">
+              <div class="settings-section">
+                <div class="settings-section-title">Métadonnées</div>
+                <div class="settings-body">
+                  <div class="settings-row"><div class="settings-row__label"><strong>Meta description</strong></div><textarea class="form-textarea" style="width:280px">Loïc Le Molgat accompagne dirigeants et équipes sur la performance durable, le leadership et la transformation organisationnelle.</textarea></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Google Analytics</strong></div><input type="text" class="form-control" placeholder="G-XXXXXXXXXX" style="width:180px"></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Sitemap XML</strong></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+                </div>
+              </div>
+              <button class="abtn abtn--primary" onclick="showToast('Paramètres SEO sauvegardés')">Sauvegarder</button>
+            </div>
+            <div id="settings-contact" class="settings-panel">
+              <div class="settings-section">
+                <div class="settings-section-title">Contact & Réseaux</div>
+                <div class="settings-body">
+                  <div class="settings-row"><div class="settings-row__label"><strong>Email</strong></div><input type="email" class="form-control" value="loic@loiclemolgat.fr" style="width:220px"></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>LinkedIn</strong></div><input type="text" class="form-control" value="linkedin.com/in/loiclemolgat" style="width:220px"></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Lien Calendly</strong><span>Pour le CTA rendez-vous</span></div><input type="text" class="form-control" placeholder="calendly.com/…" style="width:220px"></div>
+                </div>
+              </div>
+              <button class="abtn abtn--primary" onclick="showToast('Contact sauvegardé')">Sauvegarder</button>
+            </div>
+            <div id="settings-compte" class="settings-panel">
+              <div class="settings-section">
+                <div class="settings-section-title">Profil administrateur</div>
+                <div class="settings-body">
+                  <div class="settings-row"><div class="settings-row__label"><strong>Nom affiché</strong></div><input type="text" class="form-control" value="Loïc Le Molgat" style="width:200px"></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Email</strong></div><input type="email" class="form-control" value="loic@loiclemolgat.fr" style="width:200px"></div>
+                  <div class="settings-row"><div class="settings-row__label"><strong>Mot de passe</strong></div><button class="abtn abtn--ghost abtn--sm">Modifier</button></div>
+                </div>
+              </div>
+              <button class="abtn abtn--primary" onclick="showToast('Compte mis à jour')">Sauvegarder</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PILLARS ═══ -->
+      <div id="view-pillars" class="a-view">
+        <div style="max-width:700px;display:flex;flex-direction:column;gap:0.8rem">
+          <div class="panel"><div class="panel__header"><span style="font-family:var(--a-serif);font-size:1rem">Performance & Valeur</span><span style="font-size:0.72rem;color:var(--a-text-dim)">6 articles</span></div><div style="padding:1rem 1.2rem;font-size:0.82rem;color:var(--a-text-dim);line-height:1.6">Qu'est-ce qui compte vraiment ? Comment distinguer l'activité de la valeur, et l'occupation de l'impact ?</div></div>
+          <div class="panel"><div class="panel__header"><span style="font-family:var(--a-serif);font-size:1rem">Leadership & Engagement</span><span style="font-size:0.72rem;color:var(--a-text-dim)">5 articles</span></div><div style="padding:1rem 1.2rem;font-size:0.82rem;color:var(--a-text-dim);line-height:1.6">Le leadership qui dure n'est pas celui qui prescrit — c'est celui qui crée les conditions de l'engagement réel.</div></div>
+          <div class="panel"><div class="panel__header"><span style="font-family:var(--a-serif);font-size:1rem">Organisation & Delivery</span><span style="font-size:0.72rem;color:var(--a-text-dim)">4 articles</span></div><div style="padding:1rem 1.2rem;font-size:0.82rem;color:var(--a-text-dim);line-height:1.6">Comment aligner la structure, les flux et les équipes sur ce qui doit vraiment être livré ?</div></div>
+          <div class="panel"><div class="panel__header"><span style="font-family:var(--a-serif);font-size:1rem">Robustesse & Transformation</span><span style="font-size:0.72rem;color:var(--a-text-dim)">7 articles</span></div><div style="padding:1rem 1.2rem;font-size:0.82rem;color:var(--a-text-dim);line-height:1.6">Les organisations durables ne sont pas les plus efficientes — elles sont les plus capables d'apprendre de ce qu'elles traversent.</div></div>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-main -->
+
+  <!-- Toast -->
+  <div class="a-toast" id="a-toast">
+    <div class="a-toast__dot"></div>
+    <span class="a-toast__msg"></span>
+  </div>
+
+  <!-- Admin JS (order matters) -->
+  <script src="/js/admin/admin-core.js"></script>
+  <script src="/js/admin/articles.js"></script>
+  <script src="/js/admin/editor.js"></script>
+
+  <script>
+    // ─── INIT ───
+    document.addEventListener('DOMContentLoaded', () => {
+      Editor.init();
+      // Render recent articles in dashboard
+      const list = document.getElementById('recent-articles-list');
+      if (list) {
+        list.innerHTML = Articles.data.slice(0, 5).map(a => `
+          <div class="article-row" onclick="showView('editor'); Articles.editFromTable(${a.id})">
+            <div class="status-dot status-dot--${a.status}"></div>
+            <span class="pillar-tag">${a.pillar.split('&')[0].trim()}</span>
+            <span class="article-row__title">${a.title}</span>
+            <span class="article-row__date">${Articles.formatDate(a.date)}</span>
+          </div>
+        `).join('');
+      }
+    });
+  </script>
+</body>
+</html>
