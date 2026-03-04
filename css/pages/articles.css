@@ -1,0 +1,179 @@
+/* ═══════════════════════════════════════
+   pages/articles.css — Page blog / liste articles
+   loiclemolgat.fr
+   ═══════════════════════════════════════ */
+
+/* ─── PAGE HEADER ─── */
+.page-header {
+  padding: 3rem clamp(1.5rem, 5vw, 4rem) 2rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.page-header__eyebrow {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.page-header__eyebrow::before {
+  content: '';
+  width: 1.5rem;
+  height: 1px;
+  background: var(--accent);
+}
+
+.page-header__title { margin-bottom: 0.6rem; }
+
+.page-header__sub {
+  font-size: 1rem;
+  color: var(--ink-light);
+  font-weight: 300;
+  max-width: 50ch;
+}
+
+/* ─── FILTER BAR ─── */
+.filter-bar {
+  padding: 1rem clamp(1.5rem, 5vw, 4rem);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  background: var(--paper);
+  position: sticky;
+  top: var(--nav-height);
+  z-index: 10;
+}
+
+.filter-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-right: 0.4rem;
+}
+
+.filter-chip {
+  font-size: 0.74rem;
+  font-weight: 400;
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  background: none;
+  color: var(--ink-light);
+  transition: all var(--transition);
+  font-family: var(--sans);
+}
+
+.filter-chip:hover { border-color: var(--ink-light); color: var(--ink); }
+.filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* ─── ARTICLES LIST ─── */
+.articles-list {
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+}
+
+.article-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+  padding: 2.2rem 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--transition);
+}
+
+.article-item:hover { background: none; }
+
+.article-item__left { flex: 1; }
+
+.article-item__title {
+  font-family: var(--serif);
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 0.6rem;
+  transition: color var(--transition);
+}
+
+.article-item:hover .article-item__title { color: var(--accent); }
+
+.article-item__excerpt {
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+  font-weight: 300;
+  max-width: 65ch;
+  margin-bottom: 0.8rem;
+}
+
+.article-item__read-more {
+  font-size: 0.76rem;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.article-item:hover .article-item__read-more {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.article-item__right {
+  text-align: right;
+  padding-top: 0.3rem;
+}
+
+.article-item__date {
+  font-size: 0.74rem;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  font-family: var(--mono);
+}
+
+/* ─── PAGINATION ─── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 3rem 0;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--rule);
+  background: none;
+  color: var(--ink-light);
+  font-size: 0.8rem;
+  font-family: var(--sans);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.page-btn:hover { border-color: var(--ink); color: var(--ink); }
+.page-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }

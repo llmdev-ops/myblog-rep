@@ -1,0 +1,177 @@
+/* ═══════════════════════════════════════
+   pages/article.css — Page article (lecture)
+   loiclemolgat.fr
+   ═══════════════════════════════════════ */
+
+/* ─── ARTICLE HEADER ─── */
+.article-header {
+  padding: 3rem clamp(1.5rem, 5vw, 4rem) 2rem;
+  max-width: calc(var(--content-width) + 8rem);
+  margin: 0 auto;
+}
+
+.article-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.article-header__back {
+  font-size: 0.76rem;
+  color: var(--ink-faint);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color var(--transition);
+}
+
+.article-header__back:hover { color: var(--ink); }
+
+.article-header__title {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.article-header__sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ink-light);
+  line-height: 1.5;
+  max-width: 55ch;
+  margin-bottom: 1.5rem;
+}
+
+.article-header__info {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+.article-header__author {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ─── READING BODY ─── */
+.article-body {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem) 5rem;
+}
+
+.article-body p {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  font-weight: 300;
+}
+
+.article-body h2 {
+  font-size: 1.7rem;
+  margin: 2.5rem 0 1rem;
+  color: var(--ink);
+}
+
+.article-body h3 {
+  font-size: 1.3rem;
+  margin: 2rem 0 0.8rem;
+}
+
+.article-body blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  background: var(--accent-soft);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.article-body blockquote p {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin: 0;
+}
+
+.article-body ul, .article-body ol {
+  margin: 1.2rem 0 1.5rem 1.5rem;
+}
+
+.article-body li {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin-bottom: 0.4rem;
+  font-weight: 300;
+  list-style: disc;
+}
+
+.article-body ol li { list-style: decimal; }
+
+.article-body a {
+  color: var(--accent);
+  border-bottom: 1px solid rgba(196,98,45,0.3);
+  text-decoration: none;
+  transition: border-color var(--transition);
+}
+
+.article-body a:hover { border-color: var(--accent); }
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 3rem 0;
+}
+
+.article-body strong { color: var(--ink); }
+
+/* ─── ARTICLE FOOTER ─── */
+.article-footer {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 2rem clamp(1.5rem, 5vw, 4rem) 5rem;
+  border-top: 1px solid var(--rule);
+}
+
+.article-footer__cta-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1.2rem;
+}
+
+.article-footer__cta-text {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  max-width: 45ch;
+  line-height: 1.4;
+}
+
+/* ─── PROGRESS BAR ─── */
+.reading-progress {
+  position: fixed;
+  top: var(--nav-height);
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--rule);
+  z-index: 99;
+}
+
+.reading-progress__fill {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.1s linear;
+}

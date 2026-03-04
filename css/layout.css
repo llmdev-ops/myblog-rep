@@ -1,0 +1,236 @@
+/* ═══════════════════════════════════════
+   LAYOUT.CSS — Nav, Footer, Grilles
+   loiclemolgat.fr
+   ═══════════════════════════════════════ */
+
+/* ─── NAV ─── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: var(--nav-height);
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav__logo {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nav__logo-dot { color: var(--accent); }
+
+.nav__links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav__link {
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.nav__link:hover       { color: var(--ink); }
+.nav__link--active     { color: var(--ink); }
+
+.nav__link--cta {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.45rem 1.1rem;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition), color var(--transition);
+}
+
+.nav__link--cta:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* Mobile burger */
+.nav__burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+
+.nav__burger span {
+  width: 22px;
+  height: 1.5px;
+  background: var(--ink);
+  display: block;
+  transition: transform 0.2s;
+}
+
+/* ─── MAIN OFFSET (for fixed nav) ─── */
+.page-body { padding-top: var(--nav-height); }
+
+/* ─── FOOTER ─── */
+.footer {
+  background: var(--ink);
+  color: rgba(245,243,238,0.5);
+  padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.78rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+}
+
+.footer__brand {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.footer__links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer__link {
+  color: rgba(245,243,238,0.4);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.footer__link:hover { color: var(--paper); }
+
+.footer__copy { font-size: 0.72rem; }
+
+/* ─── HERO GRID ─── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.hero__left {
+  padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero__right {
+  background: var(--paper-warm);
+  border-left: 1px solid var(--rule);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 3rem 6rem;
+}
+
+/* ─── ARTICLE GRID ─── */
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.articles-grid__item {
+  background: var(--paper);
+}
+
+/* ─── PROBLEM GRID ─── */
+.problems-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.problems-grid__item {
+  padding: 2.5rem 2rem;
+  border-right: 1px solid var(--rule);
+  transition: background var(--transition);
+}
+
+.problems-grid__item:last-child { border-right: none; }
+.problems-grid__item:hover      { background: var(--accent-soft); }
+
+/* ─── PILLARS GRID ─── */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+}
+
+/* ─── POSTURE SPLIT ─── */
+.posture-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: start;
+  max-width: 960px;
+}
+
+/* ─── CTA BAND ─── */
+.cta-band {
+  background: var(--accent);
+  padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 5vw, 4rem);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: center;
+}
+
+/* ─── ARTICLE SINGLE ─── */
+.article-container {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 3rem clamp(1.5rem, 5vw, 4rem);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .hero              { grid-template-columns: 1fr; }
+  .hero__right       { display: none; }
+  .problems-grid     { grid-template-columns: 1fr; }
+  .posture-grid      { grid-template-columns: 1fr; gap: 2.5rem; }
+  .cta-band          { grid-template-columns: 1fr; }
+
+  .nav__links        { display: none; }
+  .nav__burger       { display: flex; }
+
+  .footer {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .pillars-grid { grid-template-columns: 1fr; }
+  .articles-grid { grid-template-columns: 1fr; }
+}
