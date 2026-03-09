@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Éditeur — Loïc Le Molgat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper: #f5f3ee; --paper-warm: #f0ede6; --ink: #1a1a18; --ink-light: #4a4a46;
+      --ink-faint: #9a9690; --accent: #c4622d; --accent-dim: #e8d5c8;
+      --rule: #e2ddd6; --sans: 'DM Sans', sans-serif; --serif: 'Cormorant Garamond', serif;
+      --mono: 'JetBrains Mono', monospace; --radius: 6px;
+    }
+    html, body { height: 100%; font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 14px; }
+
+    .app { display: grid; grid-template-columns: 260px 1fr 1fr; grid-template-rows: 48px 1fr 26px; height: 100vh; overflow: hidden; }
+
+    /* Topbar */
+    .topbar { grid-column: 1/-1; background: var(--ink); color: white; display: flex; align-items: center; padding: 0 1rem; gap: .75rem; }
+    .topbar__brand { font-family: var(--serif); font-size: 1rem; color: white; text-decoration: none; opacity: .8; }
+    .topbar__sep { color: rgba(255,255,255,.25); }
+    .topbar__slug { font-family: var(--mono); font-size: .68rem; color: rgba(255,255,255,.4); flex: 1; }
+    .topbar__actions { display: flex; gap: .5rem; }
+    .btn { padding: .32rem .9rem; border-radius: var(--radius); font-size: .76rem; cursor: pointer; font-family: var(--sans); font-weight: 500; transition: all .15s; white-space: nowrap; }
+    .btn-ghost { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: rgba(255,255,255,.8); }
+    .btn-ghost:hover { background: rgba(255,255,255,.18); }
+    .btn-accent { background: var(--accent); border: 1px solid var(--accent); color: white; }
+    .btn-accent:hover { background: #b3561e; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* Sidebar */
+    .sidebar { background: var(--paper-warm); border-right: 1px solid var(--rule); overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: .7rem; }
+    .sidebar__title { font-size: .6rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); padding-bottom: .5rem; border-bottom: 1px solid var(--rule); }
+    .field label { display: block; font-size: .68rem; color: var(--ink-faint); margin-bottom: .25rem; font-weight: 500; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: .4rem .6rem; border: 1px solid var(--rule); border-radius: var(--radius);
+      background: white; font-family: var(--sans); font-size: .8rem; color: var(--ink); outline: none; transition: border-color .15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+    .field textarea { resize: vertical; min-height: 56px; line-height: 1.5; }
+    .sidebar__divider { border: none; border-top: 1px solid var(--rule); }
+    .sidebar__sub { font-size: .6rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); }
+    .article-list { display: flex; flex-direction: column; gap: .3rem; }
+    .article-li { padding: .5rem .6rem; border-radius: var(--radius); cursor: pointer; border: 1px solid transparent; transition: all .12s; }
+    .article-li:hover { background: white; border-color: var(--rule); }
+    .article-li.active { background: var(--accent-dim); border-color: var(--accent); }
+    .article-li__title { font-size: .76rem; font-weight: 500; line-height: 1.3; }
+    .article-li__meta { font-size: .64rem; color: var(--ink-faint); margin-top: .12rem; }
+
+    /* Editor panel */
+    .editor-panel { display: flex; flex-direction: column; border-right: 1px solid var(--rule); overflow: hidden; }
+    .toolbar { display: flex; align-items: center; gap: .15rem; padding: .4rem .75rem; background: white; border-bottom: 1px solid var(--rule); flex-wrap: wrap; flex-shrink: 0; }
+    .toolbar__sep { width: 1px; height: 16px; background: var(--rule); margin: 0 .3rem; }
+    .tb { width: 28px; height: 28px; border: none; background: transparent; border-radius: 4px; cursor: pointer; font-size: .8rem; color: var(--ink-light); display: flex; align-items: center; justify-content: center; transition: all .12s; }
+    .tb:hover { background: var(--paper-warm); color: var(--ink); }
+    .tb-label { width: auto; padding: 0 .4rem; font-family: var(--sans); font-size: .64rem; font-weight: 500; color: var(--ink-faint); cursor: default; }
+    .tb-label:hover { background: transparent; color: var(--ink-faint); }
+    #editor {
+      flex: 1; padding: 1.5rem; border: none; outline: none; resize: none;
+      font-family: var(--mono); font-size: .82rem; line-height: 1.85; color: var(--ink); background: white; tab-size: 2;
+    }
+    #editor::placeholder { font-family: var(--sans); font-size: .9rem; color: var(--ink-faint); line-height: 1.7; }
+
+    /* Preview */
+    .preview-panel { display: flex; flex-direction: column; overflow: hidden; }
+    .preview-header { padding: .42rem 1rem; background: var(--paper-warm); border-bottom: 1px solid var(--rule); font-size: .6rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); flex-shrink: 0; }
+    .preview-body { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; }
+    .preview-body h1 { font-family: var(--serif); font-size: 1.9rem; font-weight: 500; line-height: 1.15; margin-bottom: 1.5rem; }
+    .preview-body h2 { font-family: var(--serif); font-size: 1.3rem; font-weight: 500; margin: 2.2rem 0 .7rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+    .preview-body h3 { font-family: var(--serif); font-size: 1.05rem; font-weight: 500; margin: 1.5rem 0 .5rem; color: var(--ink-light); }
+    .preview-body p { color: var(--ink-light); line-height: 1.85; margin-bottom: 1rem; font-size: .95rem; font-weight: 300; }
+    .preview-body ul, .preview-body ol { padding-left: 1.4rem; margin-bottom: 1rem; }
+    .preview-body li { color: var(--ink-light); line-height: 1.7; font-size: .93rem; font-weight: 300; margin-bottom: .3rem; }
+    .preview-body blockquote { border-left: 3px solid var(--accent); padding: .8rem 1.2rem; margin: 1.8rem 0; background: var(--paper-warm); border-radius: 0 var(--radius) var(--radius) 0; }
+    .preview-body blockquote p { color: var(--ink); font-style: italic; margin: 0; font-size: 1rem; }
+    .preview-body strong { color: var(--ink); font-weight: 500; }
+    .preview-body em { font-style: italic; }
+    .preview-body code { font-family: var(--mono); font-size: .82em; background: var(--paper-warm); padding: .1em .35em; border-radius: 3px; }
+    .preview-body hr { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+    .preview-body a { color: var(--accent); }
+
+    /* Statusbar */
+    .statusbar { grid-column: 1/-1; background: #111; color: rgba(255,255,255,.4); display: flex; align-items: center; padding: 0 1rem; font-size: .64rem; font-family: var(--mono); gap: 1.5rem; }
+    .statusbar__item { display: flex; align-items: center; gap: .35rem; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .dot-ok { color: #6fcf97; } .dot-warn { color: #f2994a; } .dot-info { color: #56ccf2; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 2.5rem; left: 50%; transform: translateX(-50%) translateY(12px); background: var(--ink); color: white; padding: .55rem 1.4rem; border-radius: 99px; font-size: .76rem; opacity: 0; transition: all .22s; pointer-events: none; z-index: 9999; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <a href="/admin/" class="topbar__brand">← Admin</a>
+    <span class="topbar__sep">›</span>
+    <span class="topbar__slug" id="topbar-slug">nouvel article</span>
+    <div class="topbar__actions">
+      <button class="btn btn-ghost" onclick="newArticle()">+ Nouveau</button>
+      <button class="btn btn-ghost" onclick="copyMarkdown()" id="btn-copy" disabled>⎘ Copier MD</button>
+      <button class="btn btn-ghost" id="btn-preview-link" style="display:none" onclick="openPreview()">↗ Voir</button>
+      <button class="btn btn-accent" id="btn-save" onclick="saveArticle()" disabled>Enregistrer</button>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar__title">Métadonnées</div>
+    <div class="field"><label>Titre *</label><input id="meta-title" type="text" placeholder="Titre de l'article" oninput="onMetaChange()"></div>
+    <div class="field"><label>Pilier</label>
+      <select id="meta-pillar">
+        <option value="">— Choisir —</option>
+        <option>Performance &amp; Valeur</option>
+        <option>Leadership &amp; Engagement</option>
+        <option>Organisation &amp; Delivery</option>
+        <option>Robustesse &amp; Transformation</option>
+      </select>
+    </div>
+    <div class="field"><label>Date</label><input id="meta-date" type="date"></div>
+    <div class="field"><label>Extrait</label><textarea id="meta-excerpt" placeholder="Résumé court (1-2 phrases)"></textarea></div>
+    <div class="field"><label>Temps de lecture (min)</label><input id="meta-readtime" type="number" min="1" max="60" value="7" style="width:70px"></div>
+    <div class="field"><label>Statut</label>
+      <select id="meta-status"><option value="draft">Brouillon</option><option value="published">Publié</option></select>
+    </div>
+    <div class="field"><label>Slug</label><input id="meta-slug" type="text" placeholder="auto-généré" style="font-family:var(--mono);font-size:.72rem"></div>
+    <hr class="sidebar__divider">
+    <div class="sidebar__sub">Articles .md enregistrés</div>
+    <div class="article-list" id="article-list"><div style="font-size:.74rem;color:var(--ink-faint)">Chargement…</div></div>
+  </aside>
+
+  <div class="editor-panel">
+    <div class="toolbar">
+      <span class="tb tb-label">Titre</span>
+      <button class="tb" title="Section principale (H2)" onclick="wrap('## ','')">H2</button>
+      <button class="tb" title="Sous-section (H3)" onclick="wrap('### ','')">H3</button>
+      <div class="toolbar__sep"></div>
+      <span class="tb tb-label">Format</span>
+      <button class="tb" title="Gras" onclick="wrapInline('**','**')"><b>B</b></button>
+      <button class="tb" title="Italique" onclick="wrapInline('*','*')"><i>I</i></button>
+      <div class="toolbar__sep"></div>
+      <span class="tb tb-label">Blocs</span>
+      <button class="tb" title="Citation" onclick="wrap('> ','')">❝</button>
+      <button class="tb" title="Liste à puces" onclick="wrap('- ','')">≡</button>
+      <button class="tb" title="Liste numérotée" onclick="wrap('1. ','')">№</button>
+      <div class="toolbar__sep"></div>
+      <button class="tb" title="Lien" onclick="insertLink()">🔗</button>
+      <button class="tb" title="Séparateur" onclick="insertHr()">—</button>
+      <button class="tb" title="Code" onclick="wrapInline('`','`')">{}</button>
+    </div>
+    <textarea id="editor"
+      placeholder="Collez votre texte ici ou écrivez directement en Markdown.
+
+## Titre de section
+
+Votre premier paragraphe...
+
+> Une citation importante
+
+- Point clé 1
+- Point clé 2"
+      oninput="onEditorChange()"
+      onkeydown="handleTab(event)"
+    ></textarea>
+  </div>
+
+  <div class="preview-panel">
+    <div class="preview-header">Prévisualisation</div>
+    <div class="preview-body" id="preview">
+      <p style="color:var(--ink-faint);font-style:italic">La prévisualisation apparaît ici au fur et à mesure que vous écrivez.</p>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <div class="statusbar__item"><span class="dot dot-info" id="status-dot"></span><span id="status-text">Prêt</span></div>
+    <div class="statusbar__item" id="stat-words">0 mots</div>
+    <div class="statusbar__item" id="stat-chars">0 car.</div>
+    <div class="statusbar__item" id="stat-read">~ 0 min</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentSlug = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('meta-date').value = new Date().toISOString().slice(0,10);
+  loadArticleList();
+
+  // Pré-charger l'article si ?slug= dans l'URL
+  const params = new URLSearchParams(window.location.search);
+  const slugParam = params.get('slug');
+  if (slugParam) {
+    loadArticle(slugParam);
+  }
+});
+
+// ── Barre d'outils ────────────────────────────────────────────────────────────
+function ed() { return document.getElementById('editor'); }
+
+function wrap(prefix) {
+  const ta = ed(), s = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
+  const lineEnd   = ta.value.indexOf('\n', s);
+  const end = lineEnd === -1 ? ta.value.length : lineEnd;
+  const line = ta.value.slice(lineStart, end);
+  if (line.startsWith(prefix)) {
+    ta.value = ta.value.slice(0, lineStart) + line.slice(prefix.length) + ta.value.slice(end);
+  } else {
+    ta.value = ta.value.slice(0, lineStart) + prefix + ta.value.slice(lineStart);
+  }
+  ta.selectionStart = ta.selectionEnd = s + prefix.length;
+  ta.focus(); onEditorChange();
+}
+
+function wrapInline(before, after) {
+  const ta = ed(), s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.slice(s, e);
+  if (sel) { ta.setRangeText(before + sel + after, s, e, 'select'); }
+  else { ta.setRangeText(before + after, s, e, 'end'); ta.selectionStart = ta.selectionEnd = s + before.length; }
+  ta.focus(); onEditorChange();
+}
+
+function insertLink() {
+  const ta = ed(), s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.slice(s, e);
+  const url = prompt('URL :', 'https://');
+  if (!url) return;
+  ta.setRangeText('[' + (sel || 'Texte') + '](' + url + ')', s, e, 'end');
+  ta.focus(); onEditorChange();
+}
+
+function insertHr() {
+  const ta = ed(), p = ta.selectionEnd;
+  ta.setRangeText('\n\n---\n\n', p, p, 'end');
+  ta.focus(); onEditorChange();
+}
+
+function handleTab(e) {
+  if (e.key !== 'Tab') return;
+  e.preventDefault();
+  const ta = ed();
+  ta.setRangeText('  ', ta.selectionStart, ta.selectionEnd, 'end');
+}
+
+// ── Markdown parser ───────────────────────────────────────────────────────────
+function parseMarkdown(md) {
+  let html = md
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,   '<h1>$1</h1>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/^> (.+)$/gm, '<blockquote><p>$1</p></blockquote>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+  // Listes
+  html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>[\s\S]*?<\/li>)(\n<li>[\s\S]*?<\/li>)*/g, m => '<ul>' + m + '</ul>');
+
+  // Paragraphes
+  return html.split(/\n\n+/).map(b => {
+    b = b.trim();
+    if (!b) return '';
+    if (/^<(h[1-6]|ul|ol|blockquote|hr)/.test(b)) return b;
+    return '<p>' + b.replace(/\n/g,'<br>') + '</p>';
+  }).join('\n');
+}
+
+function updatePreview() {
+  const title = document.getElementById('meta-title').value.trim();
+  const md    = ed().value;
+  let html = title ? '<h1>' + title + '</h1>' : '';
+  html += parseMarkdown(md);
+  document.getElementById('preview').innerHTML = html || '<p style="color:var(--ink-faint);font-style:italic">La prévisualisation apparaît ici.</p>';
+}
+
+function updateStats() {
+  const md = ed().value;
+  const w  = md.trim() ? md.trim().split(/\s+/).length : 0;
+  const r  = Math.max(1, Math.round(w / 200));
+  document.getElementById('stat-words').textContent = w + ' mots';
+  document.getElementById('stat-chars').textContent = md.length + ' car.';
+  document.getElementById('stat-read').textContent  = '~ ' + r + ' min';
+  document.getElementById('meta-readtime').value = r;
+}
+
+// ── Événements ────────────────────────────────────────────────────────────────
+function onEditorChange() { updatePreview(); updateStats(); updateButtons(); }
+
+function onMetaChange() {
+  if (!currentSlug) document.getElementById('meta-slug').value = generateSlug(document.getElementById('meta-title').value.trim());
+  document.getElementById('topbar-slug').textContent = document.getElementById('meta-slug').value || 'nouvel article';
+  updatePreview(); updateButtons();
+}
+
+function updateButtons() {
+  const ok = ed().value.trim().length > 0 && document.getElementById('meta-title').value.trim().length > 0;
+  document.getElementById('btn-save').disabled = !ok;
+  document.getElementById('btn-copy').disabled = ed().value.trim().length === 0;
+}
+
+// ── Nouveau article ───────────────────────────────────────────────────────────
+function newArticle() {
+  currentSlug = null;
+  ed().value = '';
+  ['meta-title','meta-excerpt','meta-slug'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('meta-pillar').value = '';
+  document.getElementById('meta-status').value = 'draft';
+  document.getElementById('meta-date').value   = new Date().toISOString().slice(0,10);
+  document.getElementById('btn-preview-link').style.display = 'none';
+  document.getElementById('topbar-slug').textContent = 'nouvel article';
+  document.querySelectorAll('.article-li').forEach(el => el.classList.remove('active'));
+  updatePreview(); updateStats(); updateButtons();
+  setStatus('Nouveau brouillon', 'info');
+  ed().focus();
+}
+
+// ── Liste articles ────────────────────────────────────────────────────────────
+async function loadArticleList() {
+  const list = document.getElementById('article-list');
+  try {
+    const res  = await fetch('/api/save-article.php');
+    const data = await res.json();
+    if (!data.ok || !data.articles.length) {
+      list.innerHTML = '<div style="font-size:.74rem;color:var(--ink-faint)">Aucun article .md pour l\'instant</div>';
+      return;
+    }
+    list.innerHTML = data.articles.map(a => `
+      <div class="article-li" onclick="loadArticle('${a.slug}')" data-slug="${a.slug}">
+        <div class="article-li__title">${a.title || a.slug}</div>
+        <div class="article-li__meta">${a.date || ''} · ${a.status === 'published' ? '✓ publié' : '✎ brouillon'}</div>
+      </div>`).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="font-size:.74rem;color:var(--ink-faint)">API indisponible</div>';
+  }
+}
+
+async function loadArticle(slug) {
+  try {
+    const res  = await fetch('/content/articles/' + slug + '.md');
+    if (!res.ok) {
+      setStatus('Aucun fichier .md trouvé pour ce slug — créez-en un nouveau', 'warn');
+      showToast('Article HTML statique — non éditable ici');
+      document.getElementById('meta-slug').value = slug;
+      document.getElementById('topbar-slug').textContent = slug;
+      currentSlug = null;
+      return;
+    }
+    const text = await res.text();
+    const fm = {}, match = text.match(/^---\n([\s\S]+?)\n---\n([\s\S]*)$/);
+    let body = text;
+    if (match) {
+      match[1].split('\n').forEach(line => {
+        const [k,...v] = line.split(':');
+        if (k) fm[k.trim()] = v.join(':').trim().replace(/^"|"$/g,'');
+      });
+      body = match[2].trim();
+    }
+    document.getElementById('meta-title').value    = fm.title    || '';
+    document.getElementById('meta-pillar').value   = fm.pillar   || '';
+    document.getElementById('meta-date').value     = fm.date     || '';
+    document.getElementById('meta-excerpt').value  = fm.excerpt  || '';
+    document.getElementById('meta-readtime').value = fm.readtime || '7';
+    document.getElementById('meta-status').value   = fm.status   || 'draft';
+    document.getElementById('meta-slug').value     = slug;
+    ed().value = body;
+    currentSlug = slug;
+    document.getElementById('topbar-slug').textContent = slug;
+    document.getElementById('btn-preview-link').style.display = '';
+    document.querySelectorAll('.article-li').forEach(el => el.classList.toggle('active', el.dataset.slug === slug));
+    updatePreview(); updateStats(); updateButtons();
+    setStatus('Chargé : ' + slug + '.md', 'ok');
+  } catch(e) { showToast('Erreur de chargement'); }
+}
+
+// ── Enregistrer ───────────────────────────────────────────────────────────────
+async function saveArticle() {
+  const title   = document.getElementById('meta-title').value.trim();
+  const content = ed().value.trim();
+  if (!title || !content) { showToast('Titre et contenu requis'); return; }
+  const slug = document.getElementById('meta-slug').value.trim() || generateSlug(title);
+  setStatus('Sauvegarde…', 'info');
+  try {
+    const res  = await fetch('/api/save-article.php', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ title, content, slug,
+        pillar:   document.getElementById('meta-pillar').value,
+        date:     document.getElementById('meta-date').value,
+        excerpt:  document.getElementById('meta-excerpt').value.trim(),
+        readtime: document.getElementById('meta-readtime').value,
+        status:   document.getElementById('meta-status').value })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Erreur');
+    currentSlug = data.slug;
+    document.getElementById('meta-slug').value = data.slug;
+    document.getElementById('topbar-slug').textContent = data.slug;
+    document.getElementById('btn-preview-link').style.display = '';
+    setStatus('Sauvegardé → ' + data.file, 'ok');
+    showToast('✓ ' + data.slug + '.md enregistré');
+    loadArticleList();
+  } catch(err) { setStatus('Erreur : ' + err.message, 'warn'); showToast('Erreur — ' + err.message); }
+}
+
+function openPreview() { if (currentSlug) window.open('/article.php?slug=' + currentSlug, '_blank'); }
+
+function copyMarkdown() {
+  const md = ed().value;
+  if (!md) return;
+  navigator.clipboard.writeText(md).then(() => showToast('Markdown copié'));
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function generateSlug(t) {
+  const f = ['à','â','ä','é','è','ê','ë','î','ï','ô','ö','ù','û','ü','ç','æ','œ',"'"];
+  const r = ['a','a','a','e','e','e','e','i','i','o','o','u','u','u','c','ae','oe','-'];
+  let s = t.toLowerCase();
+  f.forEach((c,i) => { s = s.split(c).join(r[i]); });
+  return s.replace(/[^a-z0-9\s-]/g,'').trim().replace(/[\s-]+/g,'-').substring(0,80);
+}
+
+function setStatus(msg, type='info') {
+  document.getElementById('status-text').textContent = msg;
+  document.getElementById('status-dot').className = 'dot dot-' + type;
+}
+
+let _tt;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

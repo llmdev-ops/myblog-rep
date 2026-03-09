@@ -177,3 +177,4 @@
 
 .page-btn:hover { border-color: var(--ink); color: var(--ink); }
 .page-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.page-ellipsis { display:inline-flex; align-items:center; padding:0 .3rem; color:var(--ink-faint); font-size:.82rem; }

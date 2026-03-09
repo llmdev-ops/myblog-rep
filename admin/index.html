@@ -31,11 +31,11 @@
       </button>
       <button class="sidebar__nav-item" data-view="articles" onclick="showView('articles'); Articles.init()">
         <span class="nav-icon">≡</span> Articles
-        <span class="nav-badge">22</span>
+        <span class="nav-badge">15</span>
       </button>
-      <button class="sidebar__nav-item" data-view="editor" onclick="showView('editor'); Editor.newArticle()">
+      <a class="sidebar__nav-item" href="/admin/editor.html" style="text-decoration:none;display:flex;align-items:center;gap:.5rem;">
         <span class="nav-icon">+</span> Nouvel article
-      </button>
+      </a>
     </div>
 
     <div class="sidebar__section">
@@ -59,6 +59,7 @@
       <button class="sidebar__nav-item" onclick="window.open('/', '_blank')">
         <span class="nav-icon">↗</span> Voir le site
       </button>
+
     </div>
 
     <div class="sidebar__footer">
@@ -93,12 +94,12 @@
         <div class="stats-row">
           <div class="stat-card">
             <div class="stat-card__label">Articles publiés</div>
-            <div class="stat-card__value">18</div>
-            <div class="stat-card__sub stat-trend">↑ 3 ce mois</div>
+            <div class="stat-card__value">15</div>
+            <div class="stat-card__sub stat-trend">↑ 10 ajoutés</div>
           </div>
           <div class="stat-card">
             <div class="stat-card__label">Brouillons</div>
-            <div class="stat-card__value">4</div>
+            <div class="stat-card__value">2</div>
             <div class="stat-card__sub">En cours de rédaction</div>
           </div>
           <div class="stat-card">
@@ -384,19 +385,25 @@
 
   <script>
     // ─── INIT ───
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       Editor.init();
-      // Render recent articles in dashboard
+
+      // Charger les articles depuis l'API dès le démarrage
+      await Articles.load();
+
+      // Afficher les 5 derniers dans le dashboard
       const list = document.getElementById('recent-articles-list');
       if (list) {
-        list.innerHTML = Articles.data.slice(0, 5).map(a => `
-          <div class="article-row" onclick="showView('editor'); Articles.editFromTable(${a.id})">
-            <div class="status-dot status-dot--${a.status}"></div>
-            <span class="pillar-tag">${a.pillar.split('&')[0].trim()}</span>
-            <span class="article-row__title">${a.title}</span>
-            <span class="article-row__date">${Articles.formatDate(a.date)}</span>
-          </div>
-        `).join('');
+        const recent = Articles.data.filter(a => a.status === 'published').slice(0, 5);
+        list.innerHTML = recent.length
+          ? recent.map(a => `
+              <div class="article-row" onclick="showView('articles'); Articles.init()">
+                <div class="status-dot status-dot--${a.status}"></div>
+                <span class="pillar-tag">${(a.pillar||'').split('&')[0].trim()}</span>
+                <span class="article-row__title">${a.title}</span>
+                <span class="article-row__date">${Articles.formatDate(a.date)}</span>
+              </div>`).join('')
+          : '<div style="padding:1rem;font-size:.82rem;color:var(--a-text-dim)">Aucun article trouvé.</div>';
       }
     });
   </script>
